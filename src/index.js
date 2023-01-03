@@ -23,35 +23,28 @@ function Square(props) {
 }
 
 class Board extends React.Component {
-  renderSquare(i) {
+  renderSquare(i,j) {
     return(
       <Square
-        value={this.props.squares[i]}
-        onClick={()=>this.props.onClick(i)}
+        key={"SQUARE-"+i+"-"+j}
+        value={this.props.squares[i][j]}
+        onClick={()=>this.props.onClick(i,j)}
       />
     );
   }
 
   render() {
-    return (
-      <div>
-        <div className="board-row">
-          {this.renderSquare(0)}
-          {this.renderSquare(1)}
-          {this.renderSquare(2)}
-        </div>
-        <div className="board-row">
-          {this.renderSquare(3)}
-          {this.renderSquare(4)}
-          {this.renderSquare(5)}
-        </div>
-        <div className="board-row">
-          {this.renderSquare(6)}
-          {this.renderSquare(7)}
-          {this.renderSquare(8)}
-        </div>
+    const squaresRows=this.props.squares.map((row,i)=>{
+      console.log(row);
+      return (
+      <div className="board-row" key={"row-"+i}>
+      {row.map((col,j)=>{
+          return this.renderSquare(i,j);
+        })}
       </div>
-    );
+      );
+    });
+    return squaresRows;
   }
 }
 
@@ -61,20 +54,23 @@ class Game extends React.Component {
     
     this.state = {
       history:[{
-        squares: Array(9).fill(null),
+        squares: Array(3).fill(Array(3).fill(null)),
       }],
       stepNumber: 0,
       xIsNext: true,
     };
+    console.log(this.state);
   }
-  handleClick(i) {
+  handleClick(i,j) {
     const history = this.state.history.slice(0, this.state.stepNumber + 1);
     const current=history[history.length-1];
     const squares = current.squares.slice();
-    if(calculateWinner(squares) || squares[i]!= null){
+    if(calculateWinner(squares) || squares[i][j]!= null){
       return;
     }
-    squares[i] = this.state.xIsNext?'X':'O';
+    console.log("BEFORE:",history);
+    squares[i][j] = this.state.xIsNext?'X':'O';
+    console.log("UPDATE:",history);
     this.setState({
       history: [...history,{
         squares: squares,
@@ -89,6 +85,21 @@ class Game extends React.Component {
       xIsNext: (step%2)===0,
     })
   }
+  getHistoryStepElement(move, description){
+    return (
+      <li key={move}>
+        <button
+          className={
+            "history-step" + (move===this.state.stepNumber? " history-step--selected": "")
+          }
+          onClick={()=>this.jumpTo(move)}
+        >
+          {description}
+        </button>
+      </li>
+    );
+  }
+
   render() {
     const history = this.state.history;
     const current = history[this.state.stepNumber];
@@ -101,27 +112,23 @@ class Game extends React.Component {
       status = 'Next player: ' + (this.state.xIsNext ? 'X' : 'O');
     }
     
-    const moves=history.map((step, move)=>{
-      const desc = move?
-        'Go to move #' + move :
-        'Go to game start';
-      return(
-        <li key={move}>
-          <button
-            onClick={()=>this.jumpTo(move)}
-          >
-            {desc}
-          </button>
-        </li>
-      )
-    })
+    const moves=history.map(
+      (step, move)=>
+      {
+        const description = move?
+          'Go to move #' + move :
+          'Go to game start';
+
+        return this.getHistoryStepElement(move, description);
+      }
+    );
     
     return (
       <div className="game">
         <div className="game-board">
           <Board
             squares={current.squares}
-            onClick={(i) => this.handleClick(i)}
+            onClick={(i,j) => this.handleClick(i,j)}
           />
         </div>
         <div className="game-info">
@@ -151,8 +158,11 @@ function calculateWinner(squares) {
   ];
   for(let i=0; i<lines.length; i++){
     const [a,b,c]=lines[i];
-    if (squares[a] && squares[a]===squares[b] && squares[a]===squares[c]){
-      return squares[a];
+    const ay=a/3, ax=a%3;
+    const by=b/3, bx=b%3;
+    const cy=c/3, cx=c%3;
+    if (squares[ax][ay] && squares[ax][ay]===squares[bx][by] && squares[ax][ay]===squares[cx][cy]){
+      return squares[ax][ay];
     }
   }
   return null;
