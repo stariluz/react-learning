@@ -1,6 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import "./index.css";
+import "bootstrap-icons/font/bootstrap-icons.css";
 
 //Class Component
 // class Square extends React.Component {
@@ -61,6 +62,7 @@ class Game extends React.Component {
       }],
       stepNumber: 0,
       xIsNext: true,
+      isDescendingOrder: false,
     };
   }
   handleClick(i) {
@@ -100,6 +102,11 @@ class Game extends React.Component {
       </li>
     );
   }
+  onToogleOrder(){
+    this.setState({
+      isDescendingOrder: !this.state.isDescendingOrder,
+    });
+  }
 
   render() {
     const history = this.state.history;
@@ -113,7 +120,7 @@ class Game extends React.Component {
       status = 'Next player: ' + (this.state.xIsNext ? 'X' : 'O');
     }
     
-    const moves=history.map(
+    let moves=history.map(
       (step, moveIndex)=>
       {
         const description = moveIndex?
@@ -123,7 +130,10 @@ class Game extends React.Component {
         return this.getHistoryStepElement(moveIndex, description);
       }
     );
-    
+    let isDescendingOrder=this.state.isDescendingOrder;
+    if(isDescendingOrder){
+      moves.reverse();
+    }
     return (
       <div className="game">
         <div className="game-board">
@@ -134,6 +144,11 @@ class Game extends React.Component {
         </div>
         <div className="game-info">
           <div>{status}</div>
+          <div>
+            <button onClick={() => this.onToogleOrder()}>
+              Sort results <i className={"bi bi-sort-numeric-"+(isDescendingOrder?"up":"down")}></i>
+            </button>
+          </div>
           <ol>{moves}</ol>
         </div>
       </div>
