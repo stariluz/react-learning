@@ -9,6 +9,17 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 var RCE = React.createElement;
+function ButtonName(props) {
+  var name = props.buttonName;
+  if (props.isActive) {
+    name += " clicked :)";
+  }
+  return React.createElement(
+    "span",
+    null,
+    name
+  );
+}
 
 var LikeButton = function (_React$Component) {
   _inherits(LikeButton, _React$Component);
@@ -23,33 +34,34 @@ var LikeButton = function (_React$Component) {
     };
     return _this;
   }
+  // Convert al the code follow code to JSX sintax
+
 
   _createClass(LikeButton, [{
-    key: 'onClickButton',
+    key: "onClickButton",
     value: function onClickButton() {
       this.setState({
         isActive: !this.state.isActive
       });
     }
   }, {
-    key: 'render',
+    key: "render",
     value: function render() {
       var _this2 = this;
 
-      return RCE('button', {
-        onClick: function onClick() {
-          _this2.onClickButton();
+      return React.createElement(
+        "button",
+        {
+          id: this.props.buttonID,
+          onClick: function onClick() {
+            return _this2.onClickButton();
+          }
         },
-        id: this.props.buttonID
-      },
-      // this.props.buttonName,
-      RCE(function (props) {
-        var name = _this2.props.buttonName;
-        if (_this2.state.isActive) {
-          name += " clicked :)";
-        }
-        return RCE('span', {}, name);
-      }));
+        React.createElement(ButtonName, {
+          buttonName: this.props.buttonName,
+          isActive: this.state.isActive
+        })
+      );
     }
   }]);
 
@@ -57,18 +69,33 @@ var LikeButton = function (_React$Component) {
 }(React.Component);
 
 function ButtonsContainer(props) {
-  return RCE('div', {}, RCE(LikeButton, { buttonID: 1, buttonName: "Button A" }), RCE(LikeButton, { buttonID: 2, buttonName: "Button B" }), RCE(LikeButton, { buttonID: 3, buttonName: "Button C" }));
+  return React.createElement(
+    "div",
+    null,
+    React.createElement(LikeButton, {
+      buttonID: 1,
+      buttonName: "Button A"
+    }),
+    React.createElement(LikeButton, {
+      buttonID: 2,
+      buttonName: "Button B"
+    }),
+    React.createElement(LikeButton, {
+      buttonID: 3,
+      buttonName: "Button C"
+    })
+  );
 }
 
 var domContainer = document.querySelector('#like_button_container');
 var root = ReactDOM.createRoot(domContainer);
-root.render(RCE(ButtonsContainer));
+root.render(React.createElement(ButtonsContainer, null));
 
 document.querySelectorAll(".button_container_js").forEach(function (domContainer) {
   var buttonID = parseInt(domContainer.dataset.button_id);
   var buttonName = domContainer.dataset.button_name;
   var root = ReactDOM.createRoot(domContainer);
-  root.render(RCE(LikeButton, {
+  root.render(React.createElement(LikeButton, {
     buttonID: buttonID,
     buttonName: buttonName
   }));
